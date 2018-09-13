@@ -33,17 +33,23 @@
             </TabItem>
             <TabItem Header="Grid 2 - blocks">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="37*"/>
+                        <ColumnDefinition Width="291*"/>
+                        <ColumnDefinition Width="183*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3">
                         <CheckBox Content="Use clear type" x:Name="chbClearType2" IsChecked="True" />
                         <CheckBox Content="Is transposed" x:Name="chbIsTransposed2" />
                     </StackPanel>
                     <FastWpfGrid:FastGridControl x:Name="grid2" Grid.Row="1" 
+                                                 
                                                  IsTransposed="{Binding IsChecked, ElementName=chbIsTransposed2}"
-                                                 UseClearType="{Binding IsChecked, ElementName=chbClearType2}"
+                                                 UseClearType="{Binding IsChecked, ElementName=chbClearType2}" Grid.ColumnSpan="3"
                                                  />
                 </Grid>
             </TabItem>
@@ -58,6 +64,7 @@
                         <CheckBox Content="Flexible rows" x:Name="chbFlexibleRows" />
                     </StackPanel>
                     <FastWpfGrid:FastGridControl x:Name="grid3" Grid.Row="1" 
+                                                 IsReadOnly="False"
                                                  IsTransposed="{Binding IsChecked, ElementName=chbIsTransposed3}"
                                                  AllowFlexibleRows="{Binding IsChecked, ElementName=chbFlexibleRows}"
                                                  />

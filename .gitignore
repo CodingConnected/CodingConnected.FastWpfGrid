@@ -1,3 +1,8 @@
 /_ReSharper.FastWpfGrid
 bin
 obj
+/.vs/FastWpfGrid/v15/Server/sqlite3/db.lock
+/.vs/FastWpfGrid/v15/Server/sqlite3/storage.ide
+/.vs/FastWpfGrid/v15/Server/sqlite3/storage.ide-shm
+/.vs/FastWpfGrid/v15/Server/sqlite3/storage.ide-wal
+/.vs/FastWpfGrid/v15
