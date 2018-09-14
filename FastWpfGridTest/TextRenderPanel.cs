@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace FastWpfGridTest
+namespace CodingConnected.FastWpfGridTest
 {
     public class TextRenderPanel : Panel
     {
-        protected override void OnRender(System.Windows.Media.DrawingContext dc)
+        protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);
             var bgColor = Color.FromRgb(0xF9, 0xF9, 0xF9);

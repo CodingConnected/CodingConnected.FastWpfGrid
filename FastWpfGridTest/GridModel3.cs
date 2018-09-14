@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using FastWpfGrid;
+using CodingConnected.FastWpfGrid;
 
-namespace FastWpfGridTest
+namespace CodingConnected.FastWpfGridTest
 {
     public class GridModel3 : FastGridModelBase
     {

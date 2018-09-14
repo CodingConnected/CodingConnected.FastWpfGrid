@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     /// <summary>
     /// Interaction logic for FastGridControl.xaml
@@ -43,6 +34,27 @@ namespace FastWpfGrid
         private bool _isReadOnly;
 
         private static Dictionary<string, ImageHolder> _imageCache = new Dictionary<string, ImageHolder>();
+
+
+        public FastGridModelBase ModelSource
+        {
+            get { return (FastGridModelBase)GetValue(ModelSourceProperty); }
+            set { SetValue(ModelSourceProperty, value); }
+        }
+
+        public static readonly DependencyProperty ModelSourceProperty =
+            DependencyProperty.Register(nameof(ModelSource), typeof(FastGridModelBase), typeof(FastGridControl), new PropertyMetadata(null, OnModelSourceChanged));
+
+        public static void OnModelSourceChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var ct = (FastGridControl)sender;
+            if (ct != null)
+            {
+                ct.Model = (FastGridModelBase)e.NewValue;
+            }
+        }
+
+
 
         public FastGridControl()
         {

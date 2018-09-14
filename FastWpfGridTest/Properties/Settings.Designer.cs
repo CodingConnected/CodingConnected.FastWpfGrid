@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FastWpfGridTest.Properties
+namespace CodingConnected.FastWpfGridTest.Properties
 {
 
 

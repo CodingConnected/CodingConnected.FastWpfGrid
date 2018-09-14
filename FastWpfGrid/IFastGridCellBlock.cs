@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     public enum FastGridBlockType
     {

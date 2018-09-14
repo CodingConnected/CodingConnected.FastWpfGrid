@@ -31,7 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FastWpfGrid;
 
-namespace FastWpfGridTest
+namespace CodingConnected.FastWpfGridTest
 {
     public class GridModel1 : FastGridModelBase
     {

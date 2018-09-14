@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FastWpfGrid;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FastWpfGridUnitTest
+namespace CodingConnected.FastWpfGridUnitTest
 {
     [TestClass]
     public class GridTest

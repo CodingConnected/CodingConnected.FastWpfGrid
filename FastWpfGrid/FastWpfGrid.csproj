@@ -7,8 +7,8 @@
     <ProjectGuid>{E9D6F03C-BFB5-4D31-A15E-7F789B4BBCC3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FastWpfGrid</RootNamespace>
-    <AssemblyName>FastWpfGrid</AssemblyName>
+    <RootNamespace>CodingConnected.FastWpfGrid</RootNamespace>
+    <AssemblyName>CodingConnected.FastWpfGrid</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
