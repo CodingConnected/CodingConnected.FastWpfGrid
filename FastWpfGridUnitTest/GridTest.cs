@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FastWpfGrid;
+using CodingConnected.FastWpfGrid;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodingConnected.FastWpfGridUnitTest

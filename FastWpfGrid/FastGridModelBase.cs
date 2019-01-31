@@ -280,5 +280,19 @@ namespace CodingConnected.FastWpfGrid
         {
             get { return null; }
         }
+
+        public Tuple<int, int> GetFirstSelectedCell()
+        {
+            var grid = _grids.FirstOrDefault();
+            if(grid!= null)
+            {
+                var cell = grid.GetSelectedModelCells().FirstOrDefault();
+                if(cell != null)
+                {
+                    if (cell.Column.HasValue && cell.Row.HasValue) return new Tuple<int, int>(cell.Row.Value, cell.Column.Value);
+                }
+            }
+            return null;
+        }
     }
 }
