@@ -22,6 +22,7 @@ namespace CodingConnected.FastWpfGrid
         private int _cellFontSize;
         private Color _gridLineColor = Colors.LightGray;
         private int _cellPaddingHorizontal = 2;
+        private int _minColumnWidth = 0;
         private int _cellPaddingVertical = 1;
         private int _blockPadding = 2;
         private int _columnResizeTheresold = 2;
@@ -182,6 +183,16 @@ namespace CodingConnected.FastWpfGrid
                 RenderChanged();
             }
         }
+
+        //public int MinColumnWidth
+        //{
+        //    get { return _minColumnWidth; }
+        //    set
+        //    {
+        //        _minColumnWidth = value;
+        //        RenderChanged();
+        //    }
+        //}
 
         public int CellPaddingVertical
         {

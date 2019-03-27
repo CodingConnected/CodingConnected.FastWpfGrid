@@ -484,7 +484,9 @@ namespace CodingConnected.FastWpfGrid
             for (int col = 0; col < colCount; col++)
             {
                 var cell = _isTransposed ? _model.GetRowHeader(this, col) : _model.GetColumnHeader(this, col);
-                _columnSizes.PutSizeOverride(col, GetCellContentWidth(cell) + 2 * CellPaddingHorizontal);
+                var width = GetCellContentWidth(cell) + 2 * CellPaddingHorizontal;
+                if (width < MinColumnWidth) width = MinColumnWidth;
+                _columnSizes.PutSizeOverride(col, width);
             }
 
             int visRows = VisibleRowCount;
