@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -723,6 +724,47 @@ namespace CodingConnected.FastWpfGrid
                 mnuSelection.ItemsSource = commands.Select(x => new SelectionQuickCommand(Model, x)).ToList();
                 mnuSelection.Visibility = Visibility.Visible;
                 AdjustSelectionMenuPosition();
+            }
+        }
+
+        private void Root_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.C && Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                var view = (FastWpfGrid.IFastGridView)sender;
+                if (view.GetSelectedModelCells().Count > 1)
+                {
+                    var d = (FastWpfGrid.FastGridControl)sender;
+                    var c = d.GetSelectedModelCells();
+
+                    var rmin = c.Min(x => x.Row);
+                    var rmax = c.Max(x => x.Row);
+                    var ir = rmax - rmin + 1;
+                    var cmin = c.Min(x => x.Column);
+                    var cmax = c.Max(x => x.Column);
+                    var ic = cmax - cmin + 1;
+
+                    var data = new string[ir.Value, ic.Value];
+
+                    var sb = new StringBuilder();
+                    var m = d.Model;
+                    var pr = c.First().Row;
+                    foreach (var cc in c)
+                    {
+                        var da = m.GetCell(view, cc.Row.Value, cc.Column.Value);
+                        data[cc.Row.Value - rmin.Value, cc.Column.Value - cmin.Value] = da.GetEditText();
+                    }
+                    for (int i = 0; i < ir.Value; i++)
+                    {
+                        for (int j = 0; j < ic.Value; j++)
+                        {
+                            if (j != 0) sb.Append("\t");
+                            sb.Append(data[i, j]);
+                        }
+                        sb.AppendLine();
+                    }
+                    Clipboard.SetText(sb.ToString());
+                }
             }
         }
     }
