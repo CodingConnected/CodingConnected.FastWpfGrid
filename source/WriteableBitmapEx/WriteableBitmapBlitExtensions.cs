@@ -382,8 +382,6 @@ namespace System.Windows.Media.Imaging
 
         public static void Blit(BitmapContext destContext, int dpw, int dph, Rect destRect, BitmapContext srcContext, Rect sourceRect, int sourceWidth)
         {
-            const BlendMode blendMode = BlendMode.Alpha;
-
             var dw = (int)destRect.Width;
             var dh = (int)destRect.Height;
 
