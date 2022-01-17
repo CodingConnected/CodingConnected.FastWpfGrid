@@ -27,7 +27,9 @@ namespace CodingConnected.FastWpfGrid
                 var colsToRender = VisibleColumnCount;
                 var rowsToRender = VisibleRowCount;
 
-                if (_invalidatedCells.Count > 250)
+                if (_invalidatedCells.Count > 250 ||
+                    Math.Abs(Hscroll.Value - Hscroll.Maximum) < 0.01 ||
+                    Math.Abs(Vscroll.Value - Vscroll.Maximum) < 0.01)
                 {
                     _isInvalidatedAll = true;
                 }
