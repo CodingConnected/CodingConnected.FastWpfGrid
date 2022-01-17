@@ -68,7 +68,7 @@ namespace CodingConnected.FastWpfGrid
             base.OnMouseLeftButtonDown(e);
             _showCellEditorIfMouseUp = FastGridCellAddress.Empty;
 
-            var pt = e.GetPosition(image);
+            var pt = e.GetPosition(Image);
             pt.X *= DpiDetector.DpiXKoef;
             pt.Y *= DpiDetector.DpiYKoef;
             var cell = GetCellAddress(pt);
@@ -317,7 +317,7 @@ namespace CodingConnected.FastWpfGrid
                 ReleaseMouseCapture();
             }
 
-            var pt = e.GetPosition(image);
+            var pt = e.GetPosition(Image);
             pt.X *= DpiDetector.DpiXKoef;
             pt.Y *= DpiDetector.DpiYKoef;
             var cell = GetCellAddress(pt);
@@ -338,7 +338,7 @@ namespace CodingConnected.FastWpfGrid
         {
             base.OnMouseRightButtonDown(e);
 
-            var pt = e.GetPosition(image);
+            var pt = e.GetPosition(Image);
             pt.X *= DpiDetector.DpiXKoef;
             pt.Y *= DpiDetector.DpiYKoef;
             var cell = GetCellAddress(pt);
@@ -472,8 +472,8 @@ namespace CodingConnected.FastWpfGrid
             }
             else
             {
-                if (e.Delta < 0) vscroll.Value = vscroll.Value + vscroll.LargeChange / 2;
-                if (e.Delta > 0) vscroll.Value = vscroll.Value - vscroll.LargeChange / 2;
+                if (e.Delta < 0) Vscroll.Value = Vscroll.Value + Vscroll.LargeChange / 2;
+                if (e.Delta > 0) Vscroll.Value = Vscroll.Value - Vscroll.LargeChange / 2;
                 ScrollChanged();
             }
         }
@@ -550,7 +550,7 @@ namespace CodingConnected.FastWpfGrid
 
         private void imageMouseDown(object sender, MouseButtonEventArgs e)
         {
-            Keyboard.Focus(image);
+            Keyboard.Focus(Image);
         }
 
         protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
@@ -558,12 +558,12 @@ namespace CodingConnected.FastWpfGrid
             base.OnMouseMove(e);
             using (var ctx = CreateInvalidationContext())
             {
-                var pt = e.GetPosition(image);
+                var pt = e.GetPosition(Image);
 
                 _mouseIsBehindLeft = pt.X < 0;
-                _mouseIsBehindRight = pt.X > image.ActualWidth;
+                _mouseIsBehindRight = pt.X > Image.ActualWidth;
                 _mouseIsBehindTop = pt.Y < 0;
-                _mouseIsBehindBottom = pt.Y > image.ActualHeight;
+                _mouseIsBehindBottom = pt.Y > Image.ActualHeight;
 
                 pt.X *= DpiDetector.DpiXKoef;
                 pt.Y *= DpiDetector.DpiYKoef;

@@ -62,12 +62,27 @@ namespace CodingConnected.FastWpfGrid
             InitializeComponent();
             //gridCore.Grid = this;
             CellFontSize = 11;
-            _dragTimer = new DispatcherTimer();
-            _dragTimer.IsEnabled = false;
-            _dragTimer.Interval = TimeSpan.FromSeconds(0.05);
+            _dragTimer = new DispatcherTimer
+            {
+                IsEnabled = false,
+                Interval = TimeSpan.FromSeconds(0.05)
+            };
             _dragTimer.Tick += _dragTimer_Tick;
             AllowSelectAll = true;
+            Loaded += (sender, args) =>
+            {
+                var source = PresentationSource.FromVisual(this);
+                if (source?.CompositionTarget != null)
+                {
+                    _scaleX = 96.0 * source.CompositionTarget.TransformToDevice.M11 / 96.0;
+                    _scaleY = 96.0 * source.CompositionTarget.TransformToDevice.M22 / 96.0;
+                }
+                SetScrollbarMargin();
+            };
         }
+
+        private double _scaleX = 1.0;
+        private double _scaleY = 1.0;
 
         public bool AllowSelectAll { get; set; }
 
@@ -135,7 +150,17 @@ namespace CodingConnected.FastWpfGrid
             if (Model != null)
             {
                 var width = GetCellContentWidth(Model.GetGridHeader(this));
-                if (width + 2 * CellPaddingHorizontal > HeaderWidth) HeaderWidth = width + 2 * CellPaddingHorizontal;
+                if (width + 2 * CellPaddingHorizontal > HeaderWidth) 
+                    HeaderWidth = width + 2 * CellPaddingHorizontal;
+                //var hWidth = 0.0;
+                //for (int i = 0; i < Model.RowCount; i++)
+                //{
+                //    var header = Model.GetRowHeader(this, i);
+                //    var w = GetTextWidth(header.GetBlock(0).TextData, false, false);
+                //    if (w > hWidth) hWidth = w;
+                //}
+                //HeaderWidth = (int)hWidth;
+                //HeaderHeight = _rowSizes.DefaultSize;
             }
         }
 
@@ -166,8 +191,8 @@ namespace CodingConnected.FastWpfGrid
             //int rowIndex = _rowSizes.GetScrollIndexOnPosition((int) vscroll.Value);
             //int columnIndex = _columnSizes.GetScrollIndexOnPosition((int) hscroll.Value);
 
-            var rowIndex = (int) Math.Round(vscroll.Value);
-            var columnIndex = (int) Math.Round(hscroll.Value);
+            var rowIndex = (int) Math.Round(Vscroll.Value);
+            var columnIndex = (int) Math.Round(Hscroll.Value);
 
             //FirstVisibleRow = rowIndex;
             //FirstVisibleColumn = columnIndex;
@@ -228,41 +253,42 @@ namespace CodingConnected.FastWpfGrid
 
         private void AdjustScrollbars()
         {
-            hscroll.Minimum = 0;
+            Hscroll.Minimum = 0;
             //hscroll.Maximum = _columnSizes.GetTotalScrollSizeSum() - GridScrollAreaWidth + _columnSizes.DefaultSize;
 
             // hscroll.Maximum = _columnSizes.ScrollCount - 1;
 
-            hscroll.Maximum = Math.Min(
+            Hscroll.Maximum = Math.Min(
                 _columnSizes.ScrollCount - 1,
-                _columnSizes.ScrollCount - _columnSizes.GetVisibleScrollCountReversed(_columnSizes.ScrollCount - 1, GridScrollAreaWidth) + 1
-                );
-            hscroll.ViewportSize = VisibleColumnCount; //GridScrollAreaWidth;
-            hscroll.SmallChange = 1; // GridScrollAreaWidth / 10.0;
-            hscroll.LargeChange = 3; // GridScrollAreaWidth / 2.0;
+                _columnSizes.ScrollCount - _columnSizes.GetVisibleScrollCountReversed(_columnSizes.ScrollCount - 1, GridScrollAreaWidth) + 1);
+            Hscroll.ViewportSize = VisibleColumnCount; //GridScrollAreaWidth;
+            Hscroll.SmallChange = 1; // GridScrollAreaWidth / 10.0;
+            Hscroll.LargeChange = 3; // GridScrollAreaWidth / 2.0;
 
-            vscroll.Minimum = 0;
-            //AdjustVerticalScrollBarRange();
-            //vscroll.Maximum = _rowSizes.GetTotalScrollSizeSum() - GridScrollAreaHeight + _rowSizes.DefaultSize;
+            Hscroll.Visibility = VisibleColumnCount - _columnSizes.ScrollCount >= Hscroll.Maximum ? Visibility.Collapsed : Visibility.Visible;
+            
+            Vscroll.Minimum = 0;
             if (FlexibleRows)
             {
-                vscroll.Maximum = _rowSizes.ScrollCount - 1;
+                Vscroll.Maximum = _rowSizes.ScrollCount - 1;
             }
             else
             {
-                vscroll.Maximum = _rowSizes.ScrollCount - (GridScrollAreaHeight/(_rowSizes.DefaultSize + 1)) + 1;
+                Vscroll.Maximum = _rowSizes.ScrollCount - (GridScrollAreaHeight/(_rowSizes.DefaultSize + 1)) + 1;
             }
-            vscroll.ViewportSize = VisibleRowCount; // GridScrollAreaHeight;
-            vscroll.SmallChange = 1; // _rowSizes.DefaultSize;
-            vscroll.LargeChange = 10; // GridScrollAreaHeight / 2.0;
+            Vscroll.ViewportSize = VisibleRowCount;
+            Vscroll.SmallChange = 1;
+            Vscroll.LargeChange = 10;
+            
+            Vscroll.Visibility = VisibleRowCount - _rowSizes.ScrollCount >= Vscroll.Maximum ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void AdjustScrollBarPositions()
         {
             //hscroll.Value = _columnSizes.GetPositionByScrollIndex(FirstVisibleColumnScrollIndex); //FirstVisibleColumn* ColumnWidth;
             //vscroll.Value = _rowSizes.GetPositionByScrollIndex(FirstVisibleRowScrollIndex);
-            hscroll.Value = FirstVisibleColumnScrollIndex;
-            vscroll.Value = FirstVisibleRowScrollIndex;
+            Hscroll.Value = FirstVisibleColumnScrollIndex;
+            Vscroll.Value = FirstVisibleRowScrollIndex;
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -387,14 +413,14 @@ namespace CodingConnected.FastWpfGrid
                 if (saveCellValue && _inplaceEditorCell.IsCell && _inlineTextChanged)
                 {
                     var cell = GetCell(_inplaceEditorCell.Row.Value, _inplaceEditorCell.Column.Value);
-                    cell.SetEditText(edText.Text);
+                    cell.SetEditText(EdText.Text);
                     InvalidateCell(_inplaceEditorCell);
                 }
                 _inplaceEditorCell = new FastGridCellAddress();
-                edText.Text = "";
-                edText.Visibility = Visibility.Hidden;
+                EdText.Text = "";
+                EdText.Visibility = Visibility.Hidden;
             }
-            Keyboard.Focus(image);
+            Keyboard.Focus(Image);
         }
 
         private void ShowInlineEditor(FastGridCellAddress cell, string textValueOverride = null)
@@ -408,29 +434,29 @@ namespace CodingConnected.FastWpfGrid
 
             _inplaceEditorCell = cell;
 
-            edText.Text = textValueOverride ?? text;
-            edText.Visibility = Visibility.Visible;
+            EdText.Text = textValueOverride ?? text;
+            EdText.Visibility = Visibility.Visible;
             AdjustInlineEditorPosition();
 
-            if (edText.IsFocused)
+            if (EdText.IsFocused)
             {
                 if (textValueOverride == null)
                 {
-                    edText.SelectAll();
+                    EdText.SelectAll();
                 }
             }
             else
             {
-                edText.Focus();
+                EdText.Focus();
                 if (textValueOverride == null)
                 {
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action) edText.SelectAll);
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action) EdText.SelectAll);
                 }
             }
 
             if (textValueOverride != null)
             {
-                edText.SelectionStart = textValueOverride.Length;
+                EdText.SelectionStart = textValueOverride.Length;
             }
 
             _inlineTextChanged = !String.IsNullOrEmpty(textValueOverride);
@@ -442,15 +468,15 @@ namespace CodingConnected.FastWpfGrid
             {
                 var visible = _rowSizes.IsVisible(_inplaceEditorCell.Row.Value, FirstVisibleRowScrollIndex, GridScrollAreaHeight)
                               && _columnSizes.IsVisible(_inplaceEditorCell.Column.Value, FirstVisibleColumnScrollIndex, GridScrollAreaWidth);
-                edText.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
+                EdText.Visibility = visible ? Visibility.Visible : Visibility.Hidden;
                 var rect = GetCellRect(_inplaceEditorCell.Row.Value, _inplaceEditorCell.Column.Value);
 
-                edText.Margin = new Thickness
+                EdText.Margin = new Thickness
                     {
                         Left = rect.Left / DpiDetector.DpiXKoef,
                         Top = rect.Top / DpiDetector.DpiYKoef,
-                        Right = imageGrid.ActualWidth - rect.Right / DpiDetector.DpiXKoef,
-                        Bottom = imageGrid.ActualHeight - rect.Bottom / DpiDetector.DpiYKoef,
+                        Right = ImageGrid.ActualWidth - rect.Right / DpiDetector.DpiXKoef,
+                        Bottom = ImageGrid.ActualHeight - rect.Bottom / DpiDetector.DpiYKoef,
                     };
             }
         }
@@ -471,7 +497,7 @@ namespace CodingConnected.FastWpfGrid
             var left = GetColumnLeft(maxaddr.Column.Value);
             var top = GetRowTop(maxaddr.Row.Value + 1);
 
-            mnuSelection.Margin = new Thickness
+            MenuSelection.Margin = new Thickness
             {
                 Left = left / DpiDetector.DpiXKoef,
                 Top = top / DpiDetector.DpiYKoef,
@@ -613,8 +639,8 @@ namespace CodingConnected.FastWpfGrid
         private void imageGridResized(object sender, SizeChangedEventArgs e)
         {
             var wasEmpty = _drawBuffer == null;
-            var width = (int) imageGrid.ActualWidth - 2;
-            var height = (int) imageGrid.ActualHeight - 2;
+            var width = (int) ImageGrid.ActualWidth - 2;
+            var height = (int) ImageGrid.ActualHeight - 2;
             if (width > 0 && height > 0)
             {
 				//To avoid flicker (blank image) while resizing, crop the current buffer and set it as the image source instead of using a new one.
@@ -640,10 +666,10 @@ namespace CodingConnected.FastWpfGrid
             {
 				_drawBuffer = null;
             }
-            image.Source = _drawBuffer;
-            image.Margin = new Thickness(0);
-            image.Width = Math.Max(0, width);
-            image.Height = Math.Max(0, height);
+            Image.Source = _drawBuffer;
+            Image.Margin = new Thickness(0);
+            Image.Width = Math.Max(0, width);
+            Image.Height = Math.Max(0, height);
 
             //var screenPos = imageGrid.PointToScreen(new Point(0, 0));
             //double fracX = screenPos.X - Math.Truncate(screenPos.X);
@@ -727,13 +753,13 @@ namespace CodingConnected.FastWpfGrid
         {
             if (commands == null)
             {
-                mnuSelection.ItemsSource = null;
-                mnuSelection.Visibility = Visibility.Hidden;
+                MenuSelection.ItemsSource = null;
+                MenuSelection.Visibility = Visibility.Hidden;
             }
             else
             {
-                mnuSelection.ItemsSource = commands.Select(x => new SelectionQuickCommand(Model, x)).ToList();
-                mnuSelection.Visibility = Visibility.Visible;
+                MenuSelection.ItemsSource = commands.Select(x => new SelectionQuickCommand(Model, x)).ToList();
+                MenuSelection.Visibility = Visibility.Visible;
                 AdjustSelectionMenuPosition();
             }
         }
@@ -742,38 +768,62 @@ namespace CodingConnected.FastWpfGrid
         {
             if(e.Key == Key.C && Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                var view = (FastWpfGrid.IFastGridView)sender;
-                if (view.GetSelectedModelCells().Count > 1)
+                var view = (IFastGridView)sender;
+                var fastGridControl = (FastGridControl)sender;
+                var selection = fastGridControl.GetSelectedModelCells();
+                if (selection.Count > 1)
                 {
-                    var d = (FastWpfGrid.FastGridControl)sender;
-                    var c = d.GetSelectedModelCells();
+                    var minRow = selection.Min(x => x.Row);
+                    var maxRow = selection.Max(x => x.Row);
+                    if (!minRow.HasValue || !maxRow.HasValue) return;
+                    var selectionRowCount = maxRow.Value - minRow.Value + 1;
+                    var minCol = selection.Min(x => x.Column);
+                    var maxCol = selection.Max(x => x.Column);
+                    if (!minCol.HasValue || !maxCol.HasValue) return;
+                    var selectionColCount = maxCol.Value - minCol.Value + 1;
 
-                    var rmin = c.Min(x => x.Row);
-                    var rmax = c.Max(x => x.Row);
-                    var ir = rmax - rmin + 1;
-                    var cmin = c.Min(x => x.Column);
-                    var cmax = c.Max(x => x.Column);
-                    var ic = cmax - cmin + 1;
-
-                    var data = new string[ir.Value, ic.Value];
+                    var id1 = IsTransposed ? selectionColCount + 1 : selectionRowCount + 1;
+                    var id2 = IsTransposed ? selectionRowCount + 1 : selectionColCount + 1;
+                    
+                    var data = new string[id1, id2];
 
                     var sb = new StringBuilder();
-                    var m = d.Model;
-                    var pr = c.First().Row;
-                    foreach (var cc in c)
+                    var model = fastGridControl.Model;
+                    for (var c = minCol.Value; c <= maxCol.Value; c++)
                     {
-                        var da = m.GetCell(view, cc.Row.Value, cc.Column.Value);
-                        data[cc.Row.Value - rmin.Value, cc.Column.Value - cmin.Value] = da.GetEditText();
+                        if (IsTransposed) data[c - minCol.Value + 1, 0] = _model.GetColumnHeader(this, c).GetBlock(0).TextData;
+                        else data[0, c - minCol.Value + 1] = _model.GetColumnHeader(this, c).GetBlock(0).TextData;
                     }
-                    for (var i = 0; i < ir.Value; i++)
+                    for (var r = minRow.Value; r <= maxRow.Value; r++)
                     {
-                        for (var j = 0; j < ic.Value; j++)
+                        if (IsTransposed) data[0, r - minRow.Value + 1] = _model.GetRowHeader(this, r).GetBlock(0).TextData;
+                        else data[r - minRow.Value + 1, 0] = _model.GetRowHeader(this, r).GetBlock(0).TextData;
+                    }
+                    foreach (var cell in selection)
+                    {
+                        if (!cell.Row.HasValue || !cell.Column.HasValue) continue;
+                        var da = model.GetCell(view, cell.Row.Value, cell.Column.Value);
+                        if (IsTransposed)
+                        {
+                            data[cell.Column.Value - minCol.Value + 1, cell.Row.Value - minRow.Value + 1] = da.GetBlock(0).TextData;
+                        }
+                        else
+                        {
+                            data[cell.Row.Value - minRow.Value + 1, cell.Column.Value - minCol.Value + 1] = da.GetBlock(0).TextData;
+                        }
+                    }
+
+                    for (var i = 0; i < data.GetLength(0); i++)
+                    {
+                        for (var j = 0; j < data.GetLength(1); j++)
                         {
                             if (j != 0) sb.Append("\t");
                             sb.Append(data[i, j]);
                         }
+
                         sb.AppendLine();
                     }
+
                     Clipboard.SetText(sb.ToString());
                 }
             }

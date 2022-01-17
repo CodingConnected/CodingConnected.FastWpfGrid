@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -82,7 +83,7 @@ namespace CodingConnected.FastWpfGrid
         public Rect GetColumnHeaderRectangle(int modelColumnIndex)
         {
             var rect = (IsTransposed ? GetRowHeaderRect(_rowSizes.ModelToReal(modelColumnIndex)) : GetColumnHeaderRect(_columnSizes.ModelToReal(modelColumnIndex))).ToRect();
-            var pt = image.PointToScreen(rect.TopLeft);
+            var pt = Image.PointToScreen(rect.TopLeft);
             return new Rect(pt, rect.Size);
         }
 
@@ -298,13 +299,13 @@ namespace CodingConnected.FastWpfGrid
 
         private void SetScrollbarMargin()
         {
-            vscroll.Margin = new Thickness
+            Vscroll.Margin = new Thickness
                 {
-                    Top = HeaderHeight + FrozenHeight,
+                    Top = (HeaderHeight + FrozenHeight) / _scaleY,
                 };
-            hscroll.Margin = new Thickness
+            Hscroll.Margin = new Thickness
                 {
-                    Left = HeaderWidth + FrozenWidth,
+                    Left = (HeaderWidth + FrozenWidth) / _scaleX,
                 };
         }
 
@@ -532,8 +533,8 @@ namespace CodingConnected.FastWpfGrid
 
         private void FixScrollPosition()
         {
-            if (FirstVisibleRowScrollIndex >= vscroll.Maximum) FirstVisibleRowScrollIndex = (int) vscroll.Maximum;
-            if (FirstVisibleColumnScrollIndex >= hscroll.Maximum) FirstVisibleColumnScrollIndex = (int) hscroll.Maximum;
+            if (FirstVisibleRowScrollIndex >= Vscroll.Maximum) FirstVisibleRowScrollIndex = (int) Vscroll.Maximum;
+            if (FirstVisibleColumnScrollIndex >= Hscroll.Maximum) FirstVisibleColumnScrollIndex = (int) Hscroll.Maximum;
             ClearSelectedCells();
             if (_currentCell.Row.HasValue)
             {
