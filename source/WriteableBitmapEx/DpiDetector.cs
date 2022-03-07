@@ -40,26 +40,7 @@ namespace System.Windows.Media.Imaging
                     }
                 }
                 return _dpiYKoef ?? 1;
-
-                //return Screen.PrimaryScreen.WorkingArea.Width / SystemParameters.WorkArea.Width;
-                //WantGlobalTransformMatrix();
-                //if (_globalTransformPatrix.HasValue) return _globalTransformPatrix.Value.M22;
-                //return 1;
             }
         }
-
-        //private static void WantGlobalTransformMatrix()
-        //{
-        //    if (_globalTransformPatrix != null) return;
-        //    try
-        //    {
-        //        _globalTransformPatrix =
-        //            PresentationSource.FromVisual(Application.Current.MainWindow).CompositionTarget.TransformToDevice;
-        //    }
-        //    catch
-        //    {
-        //        _globalTransformPatrix = null;
-        //    }
-        //}
     }
 }

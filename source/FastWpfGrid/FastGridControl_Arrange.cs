@@ -301,11 +301,11 @@ namespace CodingConnected.FastWpfGrid
         {
             Vscroll.Margin = new Thickness
                 {
-                    Top = (HeaderHeight + FrozenHeight) / _scaleY,
+                    Top = (HeaderHeight + FrozenHeight) / DpiDetector.DpiYKoef
                 };
             Hscroll.Margin = new Thickness
                 {
-                    Left = (HeaderWidth + FrozenWidth) / _scaleX,
+                    Left = (HeaderWidth + FrozenWidth) / DpiDetector.DpiXKoef
                 };
         }
 

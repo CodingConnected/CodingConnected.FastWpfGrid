@@ -69,20 +69,7 @@ namespace CodingConnected.FastWpfGrid
             };
             _dragTimer.Tick += _dragTimer_Tick;
             AllowSelectAll = true;
-            Loaded += (sender, args) =>
-            {
-                var source = PresentationSource.FromVisual(this);
-                if (source?.CompositionTarget != null)
-                {
-                    _scaleX = 96.0 * source.CompositionTarget.TransformToDevice.M11 / 96.0;
-                    _scaleY = 96.0 * source.CompositionTarget.TransformToDevice.M22 / 96.0;
-                }
-                SetScrollbarMargin();
-            };
         }
-
-        private double _scaleX = 1.0;
-        private double _scaleY = 1.0;
 
         public bool AllowSelectAll { get; set; }
 
