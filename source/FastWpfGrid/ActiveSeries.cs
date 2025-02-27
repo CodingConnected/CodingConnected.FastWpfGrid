@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     public class ActiveSeries
     {

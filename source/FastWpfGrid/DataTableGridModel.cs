@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     public class DataTableGridModel : FastGridModelBase
     {

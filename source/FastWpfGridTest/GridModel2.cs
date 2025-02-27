@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FastWpfGrid;
+using System;
 using System.Windows.Media;
-using CodingConnected.FastWpfGrid;
 
-namespace CodingConnected.FastWpfGridTest
+namespace FastWpfGridTest
 {
     public class GridModel2 : FastGridModelBase
     {

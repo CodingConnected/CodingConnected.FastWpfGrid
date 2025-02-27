@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     partial class FastGridControl
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     public class FastGridBlockImpl : IFastGridCellBlock
     {

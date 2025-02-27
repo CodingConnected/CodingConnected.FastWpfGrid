@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace CodingConnected.FastWpfGridTest
+namespace FastWpfGridTest
 {
     public class TextRenderPanel : Panel
     {

@@ -10,8 +10,8 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CodingConnected.FastWpfGrid\CodingConnected.FastWpfGrid.csproj" />
-    <ProjectReference Include="..\CodingConnected.WriteableBitmapEx\CodingConnected.WriteableBitmapEx.Wpf.csproj" />
+    <ProjectReference Include="..\FastWpfGrid\FastWpfGrid.csproj" />
+    <ProjectReference Include="..\WriteableBitmapEx\WriteableBitmapEx.Wpf.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\primary_keysmall.png" />

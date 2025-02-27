@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace CodingConnected.FastWpfGridTest
+namespace FastWpfGridTest
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

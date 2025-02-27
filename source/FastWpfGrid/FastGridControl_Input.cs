@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     partial class FastGridControl
     {

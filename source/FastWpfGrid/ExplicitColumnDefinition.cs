@@ -1,4 +1,4 @@
-﻿namespace CodingConnected.FastWpfGrid
+﻿namespace FastWpfGrid
 {
     public class ExplicitColumnDefinition
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace CodingConnected.FastWpfGrid
+namespace FastWpfGrid
 {
     partial class FastGridControl
     {
