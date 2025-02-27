@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -95,13 +97,18 @@ namespace System.Windows.Media.Imaging
                 }
             }
 
+            (bmp.GetType()
+                .GetField("_renderTargetBitmap", BindingFlags.Instance | BindingFlags.NonPublic)?
+                .GetValue(bmp) as IDisposable)?
+                .Dispose();
+
             return new GrayScaleLetterGlyph
                 {
                     Width = width,
                     Height = height,
                     Ch = ch,
-                    Items = res.ToArray(),
-                };
+                Items = res.ToArray(),
+            };
         }
     }
 }

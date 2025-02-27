@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace System.Windows.Media.Imaging
+﻿namespace System.Windows.Media.Imaging
 {
     public class PortableFontDesc
     {

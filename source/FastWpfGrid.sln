@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29911.84
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastWpfGrid", "FastWpfGrid\FastWpfGrid.csproj", "{E9D6F03C-BFB5-4D31-A15E-7F789B4BBCC3}"
 EndProject
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastWpfGridTest", "FastWpfG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteableBitmapEx.Wpf", "WriteableBitmapEx\WriteableBitmapEx.Wpf.csproj", "{B0AA6A94-6784-4221-81F0-244A68C374C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "..\build\_build.csproj", "{E3A4F563-A4A8-43A3-8606-F5BAD31A86A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{E3A4F563-A4A8-43A3-8606-F5BAD31A86A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
