@@ -19,13 +19,10 @@ This repository is a fork of https://fastwpfgrid.codeplex.com/
 * Frozen columns/rows
 * Own rendering, WPF templates are not used. Supported objects - text (with italic, bold attributes), images, image buttons
 
-![](Home_grid1.png)
-![](Home_grid2.png)
-
 ## Model implementation
-Grid control is bind to model, which controls displayed data. Below is example of model implementation.
+Grid control is bind to model, which controls displayed data. Below is example of model implementation. Refer to the test WPF app for further details.
 
-{{
+```
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +30,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FastWpfGrid;
 
-namespace CodingConnected.FastWpfGridTest
+namespace FastWpfGridTest
 {
     public class GridModel1 : FastGridModelBase
     {
@@ -75,4 +72,4 @@ namespace CodingConnected.FastWpfGridTest
         }
     }
 }
-}}
+```
