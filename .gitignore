@@ -1,4 +1,3 @@
-/_ReSharper.FastWpfGrid
 bin
 Debug
 Release
@@ -6,4 +5,5 @@ obj
 .vs
 *.suo
 .idea
+/.tmp
 /source/.vs/*
