@@ -1,6 +1,8 @@
 **Project Description**
 Fast WPF datagrid control designed to work with large datasets, with mandatory data virtualization.
 
+_*Update 2025-02-27 - the project now targets .NET8*_
+
 This repository is a fork of https://fastwpfgrid.codeplex.com/
 
 * fast DataGrid control for .NET - WPF
