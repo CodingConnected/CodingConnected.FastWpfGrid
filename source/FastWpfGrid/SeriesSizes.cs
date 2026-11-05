@@ -27,6 +27,9 @@ namespace CodingConnected.FastWpfGrid
     public class SeriesSizes
     {
         private readonly Dictionary<int, int> _sizeOverridesByModelIndex = new Dictionary<int, int>();
+        // Sizes the user set by dragging. Kept separately so that recalculating the automatic
+        // sizes (font size, model refresh, AdjustColumnSizes) does not throw them away.
+        private readonly Dictionary<int, int> _userSizesByModelIndex = new Dictionary<int, int>();
         private int _count;
         public int DefaultSize;
         public int? MaxSize;
@@ -62,6 +65,7 @@ namespace CodingConnected.FastWpfGrid
             _scrollItems.Clear();
             //_itemByIndex.Clear();
             _sizeOverridesByModelIndex.Clear();
+            foreach (var pair in _userSizesByModelIndex) _sizeOverridesByModelIndex[pair.Key] = pair.Value;
             _positions.Clear();
             _scrollIndexes.Clear();
             _frozenItems.Clear();
@@ -71,6 +75,8 @@ namespace CodingConnected.FastWpfGrid
 
         public void PutSizeOverride(int modelIndex, int size)
         {
+            // A size the user dragged wins over the calculated one.
+            if (_userSizesByModelIndex.ContainsKey(modelIndex)) return;
             if (MaxSize.HasValue && size > MaxSize) size = MaxSize.Value;
             if (!_sizeOverridesByModelIndex.ContainsKey(modelIndex)) _sizeOverridesByModelIndex[modelIndex] = size;
             if (size > _sizeOverridesByModelIndex[modelIndex]) _sizeOverridesByModelIndex[modelIndex] = size;
@@ -200,6 +206,7 @@ namespace CodingConnected.FastWpfGrid
         public void RemoveSizeOverride(int realIndex)
         {
             var modelIndex = RealToModel(realIndex);
+            _userSizesByModelIndex.Remove(modelIndex);
             _sizeOverridesByModelIndex.Remove(modelIndex);
         }
 
@@ -345,6 +352,7 @@ namespace CodingConnected.FastWpfGrid
             var modelIndex = RealToModel(realIndex);
             if (modelIndex < 0) return;
             // can be done more effectively
+            _userSizesByModelIndex[modelIndex] = newSize;
             _sizeOverridesByModelIndex[modelIndex] = newSize;
             BuildIndex();
         }

@@ -542,7 +542,7 @@ namespace CodingConnected.FastWpfGrid
             if (a.IsColumnHeader)
             {
                 minrow = 0;
-                maxrow = _rowSizes.RealCount;
+                maxrow = _rowSizes.RealCount - 1;
             }
             else
             {
