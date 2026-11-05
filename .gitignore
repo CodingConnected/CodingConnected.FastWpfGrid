@@ -7,3 +7,5 @@ obj
 .idea
 /.tmp
 /source/.vs/*
+
+.nuke/temp/

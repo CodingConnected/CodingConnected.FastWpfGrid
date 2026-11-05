@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
@@ -13,10 +13,10 @@
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>..\..\Build\Debug\</OutputPath>
+    <OutputPath>..\..\output\Debug\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>..\..\Build\Release\</OutputPath>
-    <DocumentationFile>..\..\Build\Release\WriteableBitmapEx.Wpf.XML</DocumentationFile>
+    <OutputPath>..\..\output\Release\</OutputPath>
+    <DocumentationFile>..\..\output\Release\WriteableBitmapEx.Wpf.XML</DocumentationFile>
   </PropertyGroup>
 </Project>

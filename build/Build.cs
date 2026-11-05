@@ -22,12 +22,15 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Solution] readonly Solution Solution;
+    [Solution("source/FastWpfGrid.sln")] readonly Solution Solution;
     [GitVersion] readonly GitVersion GitVersion;
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath TestsDirectory => RootDirectory / "tests";
     AbsolutePath OutputDirectory => RootDirectory / "output";
+
+    // Kept out of the .sln so NuGet's solution parser/code generation stays happy; built directly.
+    AbsolutePath TestProject => TestsDirectory / "CodingConnected.FastWpfGrid.Tests" / "CodingConnected.FastWpfGrid.Tests.csproj";
 
     Target Clean => _ => _
         .Before(Restore)
@@ -65,6 +68,17 @@ class Build : NukeBuild
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
+        });
+
+    Target Test => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            // The WPF tests need an interactive desktop session (they show an off-screen window
+            // on an STA thread); they cannot run in a headless container.
+            DotNetTest(_ => _
+                .SetProjectFile(TestProject)
+                .SetConfiguration(Configuration));
         });
 
 }
