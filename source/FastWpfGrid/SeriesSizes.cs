@@ -128,11 +128,18 @@ namespace CodingConnected.FastWpfGrid
         public int GetScrollIndexOnPosition(int position)
         {
             var itemOrder = _positions.BinarySearch(position);
-            if (itemOrder >= 0) return itemOrder;
+            // BinarySearch returns an index into _positions/_scrollItems, which is NOT the scroll
+            // index: those lists only hold the items that have a size override.
+            if (itemOrder >= 0) return _scrollItems[itemOrder].ScrollIndex;
             itemOrder = ~itemOrder; // bitwise complement - index is next larger index
             if (itemOrder == 0) return position/DefaultSize;
-            if (position <= _scrollItems[itemOrder - 1].EndPosition) return _scrollItems[itemOrder - 1].ScrollIndex;
-            return (position - _scrollItems[itemOrder - 1].Position)/DefaultSize + _scrollItems[itemOrder - 1].ScrollIndex;
+            var item = _scrollItems[itemOrder - 1];
+            if (position < item.EndPosition) return item.ScrollIndex;
+            // Everything after the last override has DefaultSize, so measure from the END of the
+            // override, not from its start. Measuring from its start counts the override as a whole
+            // number of default-sized items, which pushes every column to the right of a resized
+            // column by (size - DefaultSize)/DefaultSize columns (GitHub issue #5).
+            return (position - item.EndPosition)/DefaultSize + item.ScrollIndex + 1;
         }
 
         public int GetFrozenIndexOnPosition(int position)
