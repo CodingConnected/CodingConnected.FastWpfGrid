@@ -39,7 +39,9 @@
             </ItemsControl>
         </Grid>
 
-        <ScrollBar Orientation="Horizontal" Grid.Column="0" Grid.Row="1" x:Name="Hscroll" Maximum="100" Scroll="hscroll_Scroll" />
-        <ScrollBar Orientation="Vertical" Grid.Column="1" Grid.Row="0" x:Name="Vscroll" Maximum="100" Scroll="vscroll_Scroll" />
+        <!-- ValueChanged, not Scroll: ScrollBar handles shift+click on the track by setting Value
+             directly, without raising the Scroll routed event. -->
+        <ScrollBar Orientation="Horizontal" Grid.Column="0" Grid.Row="1" x:Name="Hscroll" Maximum="100" ValueChanged="hscroll_ValueChanged" />
+        <ScrollBar Orientation="Vertical" Grid.Column="1" Grid.Row="0" x:Name="Vscroll" Maximum="100" ValueChanged="vscroll_ValueChanged" />
     </Grid>
 </UserControl>

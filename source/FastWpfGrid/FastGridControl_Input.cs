@@ -470,6 +470,14 @@ namespace CodingConnected.FastWpfGrid
                 FixScrollPosition();
                 InvalidateAll();
             }
+            else if (ShiftPressed)
+            {
+                // Shift+wheel scrolls horizontally, like most grids. The ScrollBar coerces Value
+                // into [Minimum, Maximum], so the ends clamp themselves.
+                if (e.Delta < 0) Hscroll.Value = Hscroll.Value + Hscroll.LargeChange;
+                if (e.Delta > 0) Hscroll.Value = Hscroll.Value - Hscroll.LargeChange;
+                ScrollChanged();
+            }
             else
             {
                 if (e.Delta < 0) Vscroll.Value = Vscroll.Value + Vscroll.LargeChange / 2;

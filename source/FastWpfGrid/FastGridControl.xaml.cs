@@ -199,12 +199,12 @@ namespace CodingConnected.FastWpfGrid
             return _alternatingColors[row%_alternatingColors.Length];
         }
 
-        private void hscroll_Scroll(object sender, ScrollEventArgs e)
+        private void hscroll_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             ScrollChanged();
         }
 
-        private void vscroll_Scroll(object sender, ScrollEventArgs e)
+        private void vscroll_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             ScrollChanged();
         }
