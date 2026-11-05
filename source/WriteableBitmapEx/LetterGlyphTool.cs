@@ -226,6 +226,18 @@ namespace System.Windows.Media.Imaging
             return bmp.DrawString(x0, y0, new IntRect(new IntPoint(0, 0), new IntSize(bmp.PixelWidth, bmp.PixelHeight)), fontColor, bgColor, font, text);
         }
 
+        /// <summary>
+        /// Clears the shared font cache. Fonts (and their DPI-dependent glyphs) are recreated on next
+        /// use. Existing GlyphFont instances already held by callers stay valid.
+        /// </summary>
+        public static void ClearCache()
+        {
+            lock (FontCache)
+            {
+                FontCache.Clear();
+            }
+        }
+
         public static GlyphFont GetFont(PortableFontDesc typeface)
         {
             lock (FontCache)

@@ -67,9 +67,11 @@ namespace System.Windows.Media.Imaging
                 var bg2 = System.Drawing.Color.FromArgb(bgColor.A, bgColor.R, bgColor.G, bgColor.B);
 
                 using (var g = System.Drawing.Graphics.FromImage(bmp))
+                using (var backgroundBrush = new System.Drawing.SolidBrush(bg2))
+                using (var foregroundBrush = new System.Drawing.SolidBrush(fg2))
                 {
-                    g.FillRectangle(new System.Drawing.SolidBrush(bg2), new Rectangle(0, 0, width, height));
-                    g.DrawString("" + ch, font, new System.Drawing.SolidBrush(fg2), 0, 0, StringFormat.GenericTypographic);
+                    g.FillRectangle(backgroundBrush, new Rectangle(0, 0, width, height));
+                    g.DrawString("" + ch, font, foregroundBrush, 0, 0, StringFormat.GenericTypographic);
                 }
 
                 for (var y = 0; y < height; y++)

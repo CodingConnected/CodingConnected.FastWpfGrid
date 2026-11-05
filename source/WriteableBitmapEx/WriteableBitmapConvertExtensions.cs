@@ -63,9 +63,14 @@ namespace System.Windows.Media.Imaging
                     count = context.Length;
                 }
 
+                if (offset < 0) offset = 0;
+                if (count < 0) count = 0;
+                if (offset + count > context.Length) count = System.Math.Max(0, context.Length - offset);
+
                 var len = count * SizeOfArgb;
                 var result = new byte[len]; // ARGB
-                BitmapContext.BlockCopy(context, offset, result, 0, len);
+                // offset is a Pixels index; BlockCopy works in bytes.
+                BitmapContext.BlockCopy(context, offset * SizeOfArgb, result, 0, len);
                 return result;
             }
         }
@@ -103,6 +108,11 @@ namespace System.Windows.Media.Imaging
         {
             using (var context = bmp.GetBitmapContext())
             {
+                if (offset < 0) offset = 0;
+                if (count < 0) count = 0;
+                if (offset + count > buffer.Length) count = System.Math.Max(0, buffer.Length - offset);
+                var maxBytes = context.Length * SizeOfArgb;
+                if (count > maxBytes) count = maxBytes;
                 BitmapContext.BlockCopy(buffer, offset, context, 0, count);
                 return bmp;
             }

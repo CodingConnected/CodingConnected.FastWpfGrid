@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     public class RowClickEventArgs : EventArgs
     {

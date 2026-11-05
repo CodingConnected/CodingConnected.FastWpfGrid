@@ -5,19 +5,91 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     partial class FastGridControl
     {
+        /// <summary>
+        /// Raised when a rendering pass fails and the draw buffer is recreated. Handlers must not throw;
+        /// use it to log the failure (the grid recovers on its own).
+        /// </summary>
+        public event Action<Exception> RenderFailed;
+
+        private const int MaxRenderRecoveryAttempts = 3;
+
+        private int _renderFailureCount;
+
         private void RenderGrid()
         {
-            var start = DateTime.Now;
             if (_drawBuffer == null)
             {
                 ClearInvalidation();
                 return;
             }
+
+            try
+            {
+                RenderGridCore();
+                _renderFailureCount = 0;
+            }
+            catch (Exception ex)
+            {
+                // Rendering must never escape to DispatcherUnhandledException: a single bad buffer
+                // would otherwise take down the application or leave the grid permanently stale.
+                RecoverFromRenderFailure(ex);
+            }
+            finally
+            {
+                ClearInvalidation();
+            }
+        }
+
+        private void RecoverFromRenderFailure(Exception exception)
+        {
+            _renderFailureCount++;
+            Trace.TraceError(
+                "FastWpfGrid: render pass {0}/{1} failed, recreating the draw buffer. {2}",
+                _renderFailureCount, MaxRenderRecoveryAttempts, exception);
+
+            var handler = RenderFailed;
+            if (handler != null)
+            {
+                try
+                {
+                    handler(exception);
+                }
+                catch (Exception handlerException)
+                {
+                    Trace.TraceError("FastWpfGrid: RenderFailed handler threw. {0}", handlerException);
+                }
+            }
+
+            // The buffer is unusable (for example its native surface was released by Freeze()).
+            // Drop it so the next pass creates a fresh one instead of failing forever.
+            _drawBuffer = null;
+            Image.Source = null;
+
+            if (_renderFailureCount > MaxRenderRecoveryAttempts) return;
+
+            try
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, (Action) (() =>
+                {
+                    if (_drawBuffer == null) CreateDrawBufferFromCurrentSize();
+                    InvalidateAll();
+                }));
+            }
+            catch (InvalidOperationException)
+            {
+                // The dispatcher has been shut down; there is nothing left to render.
+            }
+        }
+
+        private void RenderGridCore()
+        {
+            var start = DateTime.Now;
             using (_drawBuffer.GetBitmapContext())
             {
                 var colsToRender = VisibleColumnCount;
@@ -106,7 +178,6 @@ namespace FastWpfGrid
             {
                 Debug.WriteLine("Render full grid: {0} ms", Math.Round((DateTime.Now - start).TotalMilliseconds));
             }
-            ClearInvalidation();
         }
 
         private void RenderGridHeader()
@@ -215,9 +286,8 @@ namespace FastWpfGrid
                 switch (block.BlockType)
                 {
                     case FastGridBlockType.Text:
-                        var text = block.TextData;
                         var font = GetFont(block.IsBold, block.IsItalic);
-                        witdh += font.GetTextWidth(text, maxSize);
+                        witdh += font.GetTextWidth(block.TextData ?? string.Empty, maxSize);
                         break;
                     case FastGridBlockType.Image:
                         witdh += block.ImageWidth;
@@ -234,13 +304,14 @@ namespace FastWpfGrid
             if (block.MouseHoverBehaviour == MouseHoverBehaviours.HideWhenMouseOut && !isHoverCell) renderBlock = false;
 
             int width = 0, top = 0, height = 0;
+            var text = block.TextData ?? string.Empty;
 
             switch (block.BlockType)
             {
                 case FastGridBlockType.Text:
                     var font = GetFont(block.IsBold, block.IsItalic);
-                    var textHeight = font.GetTextHeight(block.TextData);
-                    width = font.GetTextWidth(block.TextData, _columnSizes.MaxSize);
+                    var textHeight = font.GetTextHeight(text);
+                    width = font.GetTextWidth(text, _columnSizes.MaxSize);
                     height = textHeight;
                     top = rectContent.Top + (int) Math.Round(rectContent.Height/2.0 - textHeight/2.0);
                     break;
@@ -282,7 +353,7 @@ namespace FastWpfGrid
                         var font = GetFont(block.IsBold, block.IsItalic);
                         _drawBuffer.DrawString(textOrigin.X, textOrigin.Y, rectContent, selectedTextColor ?? block.FontColor ?? CellFontColor, UseClearType ? bgColor : (Color?) null,
                                                font,
-                                               block.TextData);
+                                               text);
                     }
                     break;
                 case FastGridBlockType.Image:
@@ -290,8 +361,11 @@ namespace FastWpfGrid
                     {
                         var imgOrigin = new IntPoint(leftAlign ? leftPos : rightPos - block.ImageWidth, top);
                         var image = GetImage(block.ImageSource);
-                        _drawBuffer.Blit(new Point(imgOrigin.X, imgOrigin.Y), image.Bitmap, new Rect(0, 0, block.ImageWidth, block.ImageHeight),
-                                         image.KeyColor, image.BlendMode);
+                        if (image != null)
+                        {
+                            _drawBuffer.Blit(new Point(imgOrigin.X, imgOrigin.Y), image.Bitmap, new Rect(0, 0, block.ImageWidth, block.ImageHeight),
+                                             image.KeyColor, image.BlendMode);
+                        }
                     }
                     break;
             }
@@ -352,12 +426,15 @@ namespace FastWpfGrid
 
         public static ImageHolder GetImage(string source)
         {
+            if (string.IsNullOrEmpty(source)) return null;
+
             lock (_imageCache)
             {
-                if (_imageCache.ContainsKey(source)) return _imageCache[source];
+                if (_imageCache.TryGetValue(source, out var cached)) return cached;
             }
 
-            var packUri = "pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name + ";component/" + source.TrimStart('/');
+            var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            var packUri = "pack://application:,,,/" + assembly.GetName().Name + ";component/" + source.TrimStart('/');
             var bmImage = new BitmapImage();
             bmImage.BeginInit();
             bmImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
@@ -380,6 +457,14 @@ namespace FastWpfGrid
         {
             if (row == FirstVisibleRowScrollIndex && column == FirstVisibleColumnScrollIndex)
             {
+                return;
+            }
+
+            // Scrolling manipulates the draw buffer directly; without one (zero-sized control,
+            // e.g. a collapsed tab) just remember that a redraw is needed.
+            if (_drawBuffer == null)
+            {
+                InvalidateAll();
                 return;
             }
 

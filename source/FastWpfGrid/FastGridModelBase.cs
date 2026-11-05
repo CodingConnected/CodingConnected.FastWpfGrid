@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     public abstract class FastGridModelBase : IFastGridModel, IFastGridCell, IFastGridCellBlock
     {
@@ -227,10 +227,7 @@ namespace FastWpfGrid
             if(grid!= null)
             {
                 var cell = grid.GetSelectedModelCells().FirstOrDefault();
-                if(cell != null)
-                {
-                    if (cell.Column.HasValue && cell.Row.HasValue) return new Tuple<int, int>(cell.Row.Value, cell.Column.Value);
-                }
+                if (cell.Column.HasValue && cell.Row.HasValue) return new Tuple<int, int>(cell.Row.Value, cell.Column.Value);
             }
             return null;
         }

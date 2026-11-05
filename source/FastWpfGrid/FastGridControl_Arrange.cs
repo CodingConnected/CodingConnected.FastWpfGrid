@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     partial class FastGridControl
     {

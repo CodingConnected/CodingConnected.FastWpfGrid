@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     partial class FastGridControl
     {

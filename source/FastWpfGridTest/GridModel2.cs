@@ -1,4 +1,4 @@
-﻿using FastWpfGrid;
+﻿using CodingConnected.FastWpfGrid;
 using System;
 using System.Windows.Media;
 

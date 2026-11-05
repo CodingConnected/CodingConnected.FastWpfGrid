@@ -217,7 +217,14 @@ namespace System.Windows.Media.Imaging
                                 var len = xx + wx < dpw ? wx : dpw - xx;
                                 if (len > sw) len = sw;
                                 if (len > dw) len = dw;
-                                BitmapContext.BlockCopy(srcContext, (sourceIdx + offset) * 4, destContext, (idx + offset) * 4, len * 4);
+
+                                // The per-pixel path checks this; the fast path must too, otherwise a
+                                // sourceRect larger than the source reads past its native buffer.
+                                var sourceStart = sourceIdx + offset;
+                                if (sourceStart >= 0 && len > 0 && sourceStart + len <= sourceLength)
+                                {
+                                    BitmapContext.BlockCopy(srcContext, sourceStart * 4, destContext, (idx + offset) * 4, len * 4);
+                                }
                             }
 
                      // Pixel by pixel copying
@@ -382,8 +389,6 @@ namespace System.Windows.Media.Imaging
 
         public static void Blit(BitmapContext destContext, int dpw, int dph, Rect destRect, BitmapContext srcContext, Rect sourceRect, int sourceWidth)
         {
-            const BlendMode blendMode = BlendMode.Alpha;
-
             var dw = (int)destRect.Width;
             var dh = (int)destRect.Height;
 

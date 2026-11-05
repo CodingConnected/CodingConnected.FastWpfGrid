@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     public interface IFastGridView
     {

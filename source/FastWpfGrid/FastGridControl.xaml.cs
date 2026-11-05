@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     /// <summary>
     /// Interaction logic for FastGridControl.xaml
@@ -96,6 +96,10 @@ namespace FastWpfGrid
         public void ClearCaches()
         {
             _glyphFonts.Clear();
+
+            // The shared font cache is keyed without DPI, so glyphs created before a DPI change must
+            // be dropped as well; otherwise the grid mixes old- and new-size glyphs.
+            LetterGlyphTool.ClearCache();
         }
 
         public int GetTextWidth(string text, bool isBold, bool isItalic)
@@ -628,44 +632,34 @@ namespace FastWpfGrid
             var wasEmpty = _drawBuffer == null;
             var width = (int) ImageGrid.ActualWidth - 2;
             var height = (int) ImageGrid.ActualHeight - 2;
+            var dpiChanged = UpdateDpiFromVisual();
             if (width > 0 && height > 0)
             {
-				//To avoid flicker (blank image) while resizing, crop the current buffer and set it as the image source instead of using a new one.
-				//This will be shown during the refresh.
-				var pixelWidth = (int) Math.Ceiling(width*DpiDetector.DpiXKoef);
-	            var pixelHeight = (int) Math.Ceiling(height*DpiDetector.DpiYKoef);
-	            if (_drawBuffer == null)
-	            {
-		            _drawBuffer = BitmapFactory.New(pixelWidth, pixelHeight);
-	            }
-	            else
-	            {
-		            var oldBuffer = _drawBuffer;
-		            _drawBuffer = oldBuffer.Crop(0, 0, pixelWidth, pixelHeight);
-					
-					//The unmanaged memory when crating new WritableBitmaps doesn't reliably garbage collect and can still cause out of memory exceptions
-					//Profiling revealed handles on the object that aren't able to be collected.
-					//Freezing the object removes all handles and should help in garbage collection.
-					oldBuffer.Freeze();
-	            }
+                // To avoid a blank frame while resizing, crop the current buffer and show it until the
+                // redraw (InvalidateAll below) completes. Never Freeze() the previous buffer: Freeze()
+                // disposes the native double-buffered bitmap and the object can never be locked again.
+                var pixelWidth = (int) Math.Ceiling(width*DpiDetector.DpiXKoef);
+                var pixelHeight = (int) Math.Ceiling(height*DpiDetector.DpiYKoef);
+                if (_drawBuffer == null || dpiChanged)
+                {
+                    _drawBuffer = BitmapFactory.New(pixelWidth, pixelHeight);
+                }
+                else
+                {
+                    _drawBuffer = _drawBuffer.Crop(0, 0, pixelWidth, pixelHeight);
+                }
             }
             else
             {
-				_drawBuffer = null;
+                _drawBuffer = null;
             }
-            Image.Source = _drawBuffer;
-            Image.Margin = new Thickness(0);
-            Image.Width = Math.Max(0, width);
-            Image.Height = Math.Max(0, height);
+            ApplyDrawBufferToImage(width, height);
 
-            //var screenPos = imageGrid.PointToScreen(new Point(0, 0));
-            //double fracX = screenPos.X - Math.Truncate(screenPos.X);
-            //double fracY = screenPos.Y - Math.Truncate(screenPos.Y);
-            //double dleft = 1 - fracX;
-            //double dtop = 1 - fracY;
-            //if (fracX == 0) dleft = 0;
-            //if (fracY == 0) dtop = 0;
-            //image.Margin = new Thickness(dleft, dtop, imageGrid.ActualWidth - width - dleft - 1, imageGrid.ActualHeight - height - dtop - 25);
+            // The glyph cache is DPI-dependent (sizes and advance widths).
+            if (dpiChanged)
+            {
+                RecalculateDefaultCellSize();
+            }
 
             if (wasEmpty && _drawBuffer != null)
             {
@@ -674,6 +668,51 @@ namespace FastWpfGrid
             }
             AdjustScrollbars();
             InvalidateAll();
+        }
+
+        /// <summary>
+        /// Picks up DPI changes (moving between monitors, RDP scaling changes). Returns true when the
+        /// DPI changed, in which case the draw buffer must be recreated instead of cropped.
+        /// </summary>
+        private bool UpdateDpiFromVisual()
+        {
+            if (PresentationSource.FromVisual(ImageGrid) == null) return false;
+            var dpi = VisualTreeHelper.GetDpi(ImageGrid);
+            return DpiDetector.SetKoefs(dpi.DpiScaleX, dpi.DpiScaleY);
+        }
+
+        private void ApplyDrawBufferToImage(int width, int height)
+        {
+            Image.Source = _drawBuffer;
+            Image.Margin = new Thickness(0);
+            Image.Width = Math.Max(0, width);
+            Image.Height = Math.Max(0, height);
+        }
+
+        /// <summary>
+        /// Creates a fresh draw buffer for the current control size. Used on first layout and to recover
+        /// from a buffer whose native surface is no longer usable.
+        /// </summary>
+        private bool CreateDrawBufferFromCurrentSize()
+        {
+            var width = (int) ImageGrid.ActualWidth - 2;
+            var height = (int) ImageGrid.ActualHeight - 2;
+            if (width <= 0 || height <= 0)
+            {
+                _drawBuffer = null;
+                ApplyDrawBufferToImage(width, height);
+                return false;
+            }
+
+            UpdateDpiFromVisual();
+            var pixelWidth = (int) Math.Ceiling(width*DpiDetector.DpiXKoef);
+            var pixelHeight = (int) Math.Ceiling(height*DpiDetector.DpiYKoef);
+            _drawBuffer = BitmapFactory.New(pixelWidth, pixelHeight);
+            ApplyDrawBufferToImage(width, height);
+            RecountColumnWidths();
+            RecountRowHeights();
+            AdjustScrollbars();
+            return true;
         }
 
         private bool MoveCurrentCell(int? row, int? col, KeyEventArgs e = null)
@@ -753,10 +792,11 @@ namespace FastWpfGrid
 
         private void Root_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.C && Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (e.Key == Key.C && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 var view = (IFastGridView)sender;
                 var fastGridControl = (FastGridControl)sender;
+                if (fastGridControl.Model == null) return;
                 var selection = fastGridControl.GetSelectedModelCells();
                 if (selection.Count > 1)
                 {

@@ -86,6 +86,11 @@ namespace System.Windows.Media.Imaging
         /// <returns>A new WriteableBitmap that is a cropped version of the input.</returns>
         public static WriteableBitmap Crop(this WriteableBitmap bmp, int x, int y, int width, int height)
         {
+            // BitmapFactory clamps the destination to at least 1x1; clamp here too so the stride math
+            // below (dstOff uses width, BlockCopy uses copyWidth) can never go negative.
+            if (width < 1) width = 1;
+            if (height < 1) height = 1;
+
             using (var srcContext = bmp.GetBitmapContext())
             {
                 var srcWidth = srcContext.Width;

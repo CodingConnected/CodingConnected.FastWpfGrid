@@ -68,7 +68,8 @@ namespace FastWpfGridTest
                                          FlowDirection.LeftToRight,
                                          new Typeface("Arial"),
                                          12,
-                                         new SolidColorBrush(Colors.Black));
+                                         new SolidColorBrush(Colors.Black),
+                                         VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
 
             var drawingVisual = new DrawingVisual();
@@ -171,12 +172,12 @@ namespace FastWpfGridTest
             _model1.SetColumnArrange(hidden, frozen);
         }
 
-        private void grid1_SelectedCellsChanged(object sender, FastWpfGrid.SelectionChangedEventArgs e)
+        private void grid1_SelectedCellsChanged(object sender, CodingConnected.FastWpfGrid.SelectionChangedEventArgs e)
         {
-            var view = (FastWpfGrid.IFastGridView)grid1;
+            var view = (CodingConnected.FastWpfGrid.IFastGridView)grid1;
             if (view.GetSelectedModelCells().Count > 1)
             {
-                var d = (FastWpfGrid.FastGridControl)sender;
+                var d = (CodingConnected.FastWpfGrid.FastGridControl)sender;
                 var c = d.GetSelectedModelCells();
 
                 var rmin = c.Min(x => x.Row);

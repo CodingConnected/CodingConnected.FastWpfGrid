@@ -52,7 +52,7 @@ namespace System.Windows.Media.Imaging
 #if WPF
  unsafe
 #endif
- struct BitmapContext : IDisposable
+ sealed class BitmapContext : IDisposable
     {
         private readonly WriteableBitmap _writeableBitmap;
         private readonly ReadWriteMode _mode;
@@ -108,6 +108,15 @@ namespace System.Windows.Media.Imaging
 
             _pixelWidth = _writeableBitmap.PixelWidth;
             _pixelHeight = _writeableBitmap.PixelHeight;
+
+            // The pixel primitives index the back buffer as int* with stride == Width, which is only
+            // valid for 4-byte formats. Non-32bpp bitmaps (e.g. Bgr24) would silently corrupt rows.
+            if (writeableBitmap.Format.BitsPerPixel != 32)
+            {
+                throw new ArgumentException(
+                    "BitmapContext requires a 32 bits-per-pixel bitmap (Pbgra32 or Bgra32).",
+                    nameof(writeableBitmap));
+            }
 #if WPF
          //// Check if it's the Pbgra32 pixel format
          //if (writeableBitmap.Format != PixelFormats.Pbgra32)
@@ -120,20 +129,22 @@ namespace System.Windows.Media.Imaging
 
             lock (UpdateCountByBmp)
             {
-         // Ensure the bitmap is in the dictionary of mapped Instances
-         if (!UpdateCountByBmp.ContainsKey(writeableBitmap))
-         {
-            // Set UpdateCount to 1 for this bitmap 
-            UpdateCountByBmp.Add(writeableBitmap, 1);
+                // Ensure the bitmap is in the dictionary of mapped Instances
+                if (!UpdateCountByBmp.ContainsKey(writeableBitmap))
+                {
+                    // Lock BEFORE registering. If Lock() throws (e.g. the bitmap's native surface is
+                    // gone) a pre-registered entry would poison the dictionary: later contexts would
+                    // skip Lock() and write through a stale BackBuffer pointer.
+                    writeableBitmap.Lock();
 
-            // Lock the bitmap
-            writeableBitmap.Lock();
-         }
-         else
-         {
-            // For previously contextualized bitmaps increment the update count
-            IncrementRefCount(writeableBitmap);
-         }
+                    // Set UpdateCount to 1 for this bitmap
+                    UpdateCountByBmp.Add(writeableBitmap, 1);
+                }
+                else
+                {
+                    // For previously contextualized bitmaps increment the update count
+                    IncrementRefCount(writeableBitmap);
+                }
             }
 
             _backBuffer = (int*)writeableBitmap.BackBuffer;
@@ -425,19 +436,36 @@ namespace System.Windows.Media.Imaging
       /// </summary>
       public void Dispose()
       {
-         // Decrement the update count. If it hits zero
-         if (DecrementRefCount(_writeableBitmap) == 0)
-         {
-            // Remove this bitmap from the update map 
-            UpdateCountByBmp.Remove(_writeableBitmap);
+         if (_writeableBitmap == null) return;
 
+         // Decrement the update count. If it hits zero (and even when it does not), never leave the
+         // lock held: guard against double-dispose instead of throwing KeyNotFoundException.
+         lock (UpdateCountByBmp)
+         {
+            if (!UpdateCountByBmp.TryGetValue(_writeableBitmap, out var current)) return;
+
+            current--;
+            if (current > 0)
+            {
+               UpdateCountByBmp[_writeableBitmap] = current;
+               return;
+            }
+
+            // Remove this bitmap from the update map
+            UpdateCountByBmp.Remove(_writeableBitmap);
+         }
+
+         try
+         {
             // Invalidate the bitmap if ReadWrite _mode
             if (_mode == ReadWriteMode.ReadWrite)
             {
                _writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, _writeableBitmap.PixelWidth, _writeableBitmap.PixelHeight));
             }
-
-            // Unlock the bitmap
+         }
+         finally
+         {
+            // Unlock the bitmap, even if AddDirtyRect throws (e.g. the bitmap was unlocked externally).
             _writeableBitmap.Unlock();
          }
       }
@@ -448,7 +476,9 @@ namespace System.Windows.Media.Imaging
         {
             UpdateCountByBmp[target]++;
         }
+#endif
 
+#if NETFX_CORE
         private static int DecrementRefCount(WriteableBitmap target)
         {
             var current = UpdateCountByBmp[target];

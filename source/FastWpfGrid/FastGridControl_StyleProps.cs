@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
 
-namespace FastWpfGrid
+namespace CodingConnected.FastWpfGrid
 {
     partial class FastGridControl
     {
@@ -17,7 +17,6 @@ namespace FastWpfGrid
         private int _cellFontSize;
         private Color _gridLineColor = Colors.LightGray;
         private int _cellPaddingHorizontal = 2;
-        private int _minColumnWidth = 0;
         private int _cellPaddingVertical = 1;
         private int _blockPadding = 2;
         private int _columnResizeTheresold = 2;
@@ -160,7 +159,7 @@ namespace FastWpfGrid
             get => _alternatingColors;
             set
             {
-                if (value.Length < 1) throw new Exception("Invalid value");
+                if (value == null || value.Length < 1) throw new ArgumentException("At least one color is required.", nameof(value));
                 _alternatingColors = value;
                 RenderChanged();
             }

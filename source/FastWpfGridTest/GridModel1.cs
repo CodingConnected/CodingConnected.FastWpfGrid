@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-using FastWpfGrid;
+using CodingConnected.FastWpfGrid;
 
 namespace FastWpfGridTest
 {
@@ -33,7 +33,7 @@ namespace FastWpfGridTest
         {
             var impl = new FastGridCellImpl();
             var btn = impl.AddImageBlock(view.IsTransposed ? "/Images/flip_horizontal_small.png" : "/Images/flip_vertical_small.png");
-            btn.CommandParameter = FastWpfGrid.FastGridControl.ToggleTransposedCommand;
+            btn.CommandParameter = CodingConnected.FastWpfGrid.FastGridControl.ToggleTransposedCommand;
             btn.ToolTip = "Swap rows and columns";
             impl.AddImageBlock("/Images/foreign_keysmall.png").CommandParameter = "FK";
             impl.AddImageBlock("/Images/primary_keysmall.png").CommandParameter = "PK";

@@ -1,4 +1,4 @@
-﻿namespace FastWpfGrid
+﻿namespace CodingConnected.FastWpfGrid
 {
     public struct FastGridCellAddress
     {

@@ -47,7 +47,8 @@ namespace System.Windows.Media.Imaging
                                                    FlowDirection.LeftToRight,
                                                    typeface,
                                                    size,
-                                                   Brushes.White);
+                                                   Brushes.White,
+                                                   DpiDetector.DpiXKoef);
 
             var width = (int)Math.Ceiling(DpiDetector.DpiXKoef * text.Width);
             var height = (int)Math.Ceiling(DpiDetector.DpiYKoef * text.Height);
